@@ -1,4 +1,6 @@
 ollama
+speech-recognition
+pyttsx3
 langchain 
 wikipedia 
 langchain-community 
