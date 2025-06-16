@@ -4,8 +4,18 @@ from langchain_ollama.chat_models import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_tool_calling_agent, AgentExecutor
+import speech_recognition as sr
+import pyttsx3 
 
 load_dotenv()
+
+r = sr.Recognizer() 
+
+def SpeakText(command):
+    
+    engine = pyttsx3.init()
+    engine.say(command) 
+    engine.runAndWait()
 
 class Researchresponse(BaseModel):
     topic: str
@@ -44,16 +54,39 @@ agent = create_tool_calling_agent(
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True) # For the verbose thing it is used for the thing process so if the team do not want set it to true
 
 while True:
-        
-    query = input("let start chatting: ")
-    raw_response = agent_executor.invoke({"query": query})
     
-    if query.lower() in ["exit", "quit"]:
-        print("Exiting chat. Goodbye!")
-        break
+    SpeakText("lets chat")
+        
+    try:
+        
+        # use the microphone as source for input.
+        with sr.Microphone() as source2:
+             
+            r.adjust_for_ambient_noise(source2, duration=0.2)
+            
+            audio2 = r.listen(source2)
+            
+            # Using google to recognize audio
+            MyText = r.recognize_google(audio2)
+            MyText = MyText.lower()
+            query = MyText
+            raw_response = agent_executor.invoke({"query": query})
+            
+            if query.lower() in ["exit", "quit"]:
+                print("Exiting chat. Goodbye!")
+                break
+            
+    except sr.RequestError as e:
+        print("Could not request results",{0}& format(e))
+        
+    except sr.UnknownValueError:
+        print("unknown error occurred")
+    
 
     try:
         structured_response = parser.parse(raw_response.get('output'))
-        print(structured_response)
+        SpeakText(structured_response)
     except:
         print("error in parse")
+    
+    
