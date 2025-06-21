@@ -14,6 +14,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 load_dotenv()
 
 r = sr.Recognizer()
+engine = pyttsx3.init()
 
 def SpeakText(command):
     engine = pyttsx3.init()
